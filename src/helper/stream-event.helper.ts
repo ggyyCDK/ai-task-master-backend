@@ -69,7 +69,6 @@ export class StreamEventHandler {
    * @returns 是否成功处理了内容
    */
   handleLLMStreamEvent(event: { event: string; data?: unknown }): boolean {
-    console.log(event.event,'event.event222')
     // 处理 LLM 流式输出
     if (event.event === 'on_chat_model_stream') {
       const data = event.data as { chunk?: AIMessageChunk };

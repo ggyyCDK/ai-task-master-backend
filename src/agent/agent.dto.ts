@@ -7,7 +7,7 @@ export class AgentChatRequestDto {
   @ApiProperty({ description: 'OpenAI API 密钥', example: 'sk-xxx' })
   apiKey: string;
 
-  @ApiProperty({ description: '用户消息', example: '请解释一下 React 的虚拟 DOM' })
+  @ApiProperty({ description: '用户消息', example: '帮我拆解一下开发一个用户登录注册功能的任务' })
   message: string;
 
   @ApiProperty({ description: '模型名称', example: 'claude-sonnet-4-5-20250929', required: false })
