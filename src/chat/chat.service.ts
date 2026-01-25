@@ -8,6 +8,7 @@ import {
 import { StringOutputParser } from '@langchain/core/output_parsers';
 import type { Response } from 'express';
 import { ChatRequestDto } from './chat.dto';
+import { createStreamEventHandler } from '../helper/stream-event.helper';
 
 @Injectable()
 export class ChatService {
@@ -50,33 +51,30 @@ export class ChatService {
 
     // 流式聊天
     async chatStream(chatRequest: ChatRequestDto, res: Response): Promise<void> {
+
         const { apiUrl, apiKey, message, model = 'gpt-3.5-turbo' } = chatRequest;
 
-        // 设置 SSE 响应头
-        res.setHeader('Content-Type', 'text/event-stream');
-        res.setHeader('Cache-Control', 'no-cache');
-        res.setHeader('Connection', 'keep-alive');
+        // 创建流式事件处理器
+        const handler = createStreamEventHandler(res);
+        handler.setupStreamHeaders();
 
         try {
             const llm = this.createModel(apiUrl, apiKey, model);
-            const chain = this.prompt.pipe(llm).pipe(new StringOutputParser());
+            const chain = this.prompt.pipe(llm);
 
-            const stream = await chain.stream({ message });
-            let fullContent = '';
+            // 使用 streamEvents 获取完整的流式事件（包含 usage 信息）
+            const eventStream = chain.streamEvents({ message }, { version: 'v2' });
 
-            for await (const chunk of stream) {
-                if (chunk) {
-                    fullContent += chunk;
-                    res.write(`data: ${JSON.stringify({ type: 'chunk', content: chunk })}\n\n`);
-                }
+            for await (const event of eventStream) {
+                handler.handleLLMStreamEvent(event);
             }
 
-            // 输出完整消息
-            res.write(`data: ${JSON.stringify({ type: 'done', content: fullContent })}\n\n`);
-            res.end();
+            // 发送 usage 统计
+            handler.sendUsageEvent();
+            // 发送完成事件
+            handler.sendCompleteEvent();
         } catch (error) {
-            res.write(`data: ${JSON.stringify({ type: 'error', content: error.message })}\n\n`);
-            res.end();
+            handler.sendErrorEvent(error.message);
         }
     }
 }

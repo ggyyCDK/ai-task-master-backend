@@ -24,6 +24,7 @@ export class ChatController {
     @Body() chatRequest: ChatRequestDto,
     @Res() res: Response,
   ): Promise<void> {
+    console.log('chatStream', chatRequest);
     await this.chatService.chatStream(chatRequest, res);
   }
 }
