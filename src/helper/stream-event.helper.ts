@@ -68,12 +68,13 @@ export class StreamEventHandler {
    * @param event LangChain 的流式事件
    * @returns 是否成功处理了内容
    */
-  handleLLMStreamEvent(event: { event: string; data?: unknown }): boolean {
+  handleLLMStreamEvent(event: { event: string; data?: unknown; name?: string }): boolean {
     // 处理 LLM 流式输出
     if (event.event === 'on_chat_model_stream') {
       const data = event.data as { chunk?: AIMessageChunk };
       const chunk = data?.chunk;
-      
+
+      // 处理文本内容
       if (chunk?.content) {
         const content = typeof chunk.content === 'string'
           ? chunk.content
@@ -93,13 +94,57 @@ export class StreamEventHandler {
           return true;
         }
       }
+
+      // 处理工具调用片段
+      const toolCallChunks = (chunk as any)?.tool_call_chunks;
+      if (toolCallChunks && toolCallChunks.length > 0) {
+        for (const toolChunk of toolCallChunks) {
+          if (toolChunk.name) {
+            // 工具调用开始
+            this.sendEvent({
+              eventType: 'tool_call',
+              content: JSON.stringify({
+                id: toolChunk.id,
+                name: toolChunk.name,
+                args: toolChunk.args,
+              }),
+            });
+          }
+        }
+      }
+    }
+
+    // 处理工具开始执行事件
+    if (event.event === 'on_tool_start') {
+      const data = event.data as { input?: unknown };
+      this.sendEvent({
+        eventType: 'tool_call',
+        content: JSON.stringify({
+          status: 'start',
+          name: event.name,
+          input: data?.input,
+        }),
+      });
+    }
+
+    // 处理工具执行结束事件
+    if (event.event === 'on_tool_end') {
+      const data = event.data as { output?: unknown };
+      this.sendEvent({
+        eventType: 'tool_result',
+        content: JSON.stringify({
+          status: 'end',
+          name: event.name,
+          output: data?.output,
+        }),
+      });
     }
 
     // 处理 LLM 结束事件，获取 token 使用统计
     if (event.event === 'on_chat_model_end') {
       const data = event.data as { output?: AIMessageChunk };
       const output = data?.output;
-      
+
       if (output?.usage_metadata) {
         this.tokenUsage.prompt_tokens = output.usage_metadata.input_tokens || 0;
         this.tokenUsage.completion_tokens = output.usage_metadata.output_tokens || 0;

@@ -1,13 +1,23 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { AgentType } from './prompts';
 
 export class AgentChatRequestDto {
   @ApiProperty({ description: '用户消息', example: '帮我拆解一下开发一个用户登录注册功能的任务' })
   message: string;
+
+  @ApiProperty({
+    description: 'Agent 类型',
+    example: 'task-breakdown',
+    enum: AgentType,
+    required: false,
+    default: AgentType.TASK_BREAKDOWN,
+  })
+  agentType?: AgentType;
 }
 
 // 流式输出事件类型
 export interface StreamEvent {
-  eventType: 'message' | 'usage' | 'complete' | 'error' | 'ttft';
+  eventType: 'message' | 'usage' | 'complete' | 'error' | 'tool_call' | 'tool_result';
   content: string;
 }
 
