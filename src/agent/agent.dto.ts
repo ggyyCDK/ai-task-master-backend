@@ -1,18 +1,25 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { AgentType } from './prompts';
 
-export class AgentChatRequestDto {
-  @ApiProperty({ description: '用户消息', example: '帮我拆解一下开发一个用户登录注册功能的任务' })
-  message: string;
-
+/**
+ * 生成系分请求 DTO
+ */
+export class GenerateSystemSpecDto {
   @ApiProperty({
-    description: 'Agent 类型',
-    example: 'task-breakdown',
-    enum: AgentType,
-    required: false,
-    default: AgentType.TASK_BREAKDOWN,
+    description: '用户需求描述',
+    example: '开发一个用户登录注册功能，支持手机号和邮箱登录',
   })
-  agentType?: AgentType;
+  message: string;
+}
+
+/**
+ * 生成原子任务请求 DTO
+ */
+export class GenerateTaskDto {
+  @ApiProperty({
+    description: '系分文档内容',
+    example: '系统设计：用户登录模块包括...',
+  })
+  message: string;
 }
 
 // 流式输出事件类型

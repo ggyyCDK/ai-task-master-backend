@@ -2,7 +2,7 @@ import { Body, Controller, Get, Post, Res } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import type { Response } from 'express';
 import { AgentService } from './agent.service';
-import { AgentChatRequestDto } from './agent.dto';
+import { GenerateSystemSpecDto, GenerateTaskDto } from './agent.dto';
 
 @ApiTags('Agent')
 @Controller('agent')
@@ -19,25 +19,47 @@ export class AgentController {
     return this.agentService.getAvailableAgents();
   }
 
-  @Post('chat')
-  @ApiOperation({ summary: 'Agent 聊天接口（流式输出）' })
+  @Post('generate-system-spec')
+  @ApiOperation({ summary: '生成系统设计/系分（流式输出）' })
   @ApiResponse({
     status: 200,
-    description: '流式返回 AI 回复，格式为 JSON 行',
+    description: '流式返回系分结果，格式为 JSON 行',
     content: {
       'text/plain': {
-        example: `{"eventType":"message","content":"你"}
-{"eventType":"message","content":"好"}
-{"eventType":"usage","content":"{\\"prompt_tokens\\":100,\\"completion_tokens\\":50}"}
-{"eventType":"complete","content":"[DONE]"}
-OK`,
+        example: `{"eventType":"message","content":"系统设计..."}
+{"eventType":"tool_call","content":"{...}"}
+{"eventType":"tool_result","content":"{...}"}
+{"eventType":"usage","content":"{...}"}
+{"eventType":"complete","content":"[DONE]"}`,
       },
     },
   })
-  async agentChat(
-    @Body() chatRequest: AgentChatRequestDto,
+  async generateSystemSpec(
+    @Body() dto: GenerateSystemSpecDto,
     @Res() res: Response,
   ): Promise<void> {
-    await this.agentService.agentChatStream(chatRequest, res);
+    await this.agentService.generateSystemSpec(dto.message, res);
+  }
+
+  @Post('generate-task')
+  @ApiOperation({ summary: '将系分拆解为原子任务（流式输出）' })
+  @ApiResponse({
+    status: 200,
+    description: '流式返回原子任务列表，格式为 JSON 行',
+    content: {
+      'text/plain': {
+        example: `{"eventType":"message","content":"任务 1: ..."}
+{"eventType":"tool_call","content":"{...}"}
+{"eventType":"tool_result","content":"{...}"}
+{"eventType":"usage","content":"{...}"}
+{"eventType":"complete","content":"[DONE]"}`,
+      },
+    },
+  })
+  async generateTask(
+    @Body() dto: GenerateTaskDto,
+    @Res() res: Response,
+  ): Promise<void> {
+    await this.agentService.generateTask(dto.message, res);
   }
 }

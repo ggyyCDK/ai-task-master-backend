@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { ChatOpenAI } from '@langchain/openai';
 import { createReactAgent } from '@langchain/langgraph/prebuilt';
 import { SystemMessage, HumanMessage } from '@langchain/core/messages';
-import { AgentType, getAgentConfig } from './prompts';
+import { AgentType, getAgentConfig, AgentOptions } from './agents';
 import { getTools } from './tools';
 
 /**
@@ -43,9 +43,11 @@ export class AgentFactory {
 
   /**
    * 创建指定类型的 Agent
+   * @param agentType Agent 类型
+   * @param options 可选的配置选项，用于动态定制 Agent
    */
-  createAgent(agentType: AgentType): AgentInstance {
-    const config = getAgentConfig(agentType);
+  createAgent(agentType: AgentType, options?: AgentOptions): AgentInstance {
+    const config = getAgentConfig(agentType, options);
 
     if (!config) {
       throw new Error(`Unknown agent type: ${agentType}`);
