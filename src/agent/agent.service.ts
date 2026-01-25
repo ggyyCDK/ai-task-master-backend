@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { ChatOpenAI } from '@langchain/openai';
 import { createReactAgent } from '@langchain/langgraph/prebuilt';
 import { SystemMessage, HumanMessage } from '@langchain/core/messages';
@@ -8,6 +9,7 @@ import { createStreamEventHandler } from '../helper';
 
 @Injectable()
 export class AgentService {
+  constructor(private readonly configService: ConfigService) { }
   // 任务细分专家系统提示词
   private readonly systemPrompt = `你是一位专业的任务分解专家，擅长将复杂的项目或目标拆解为清晰、可执行的子任务。
 
@@ -69,11 +71,21 @@ export class AgentService {
     chatRequest: AgentChatRequestDto,
     res: Response,
   ): Promise<void> {
-    const { apiUrl, apiKey, message, model = 'gpt-3.5-turbo' } = chatRequest;
-
+    // 从环境变量获取配置
+    const apiUrl = this.configService.get<string>('LLM_API_URL');
+    const apiKey = this.configService.get<string>('LLM_API_KEY');
+    const model = this.configService.get<string>('LLM_MODEL') || 'gpt-3.5-turbo';
+    console.log('apiUrl', apiUrl, 'apiKey', apiKey, 'model', model,);
+    const { message } = chatRequest;
     // 创建流式事件处理器
     const streamHandler = createStreamEventHandler(res);
     streamHandler.setupStreamHeaders();
+
+    // 校验必要参数
+    if (!apiUrl || !apiKey) {
+      streamHandler.sendErrorEvent('缺少 API 配置，请在请求中提供 apiUrl 和 apiKey，或在 .env 中配置 LLM_API_URL 和 LLM_API_KEY');
+      return;
+    }
 
     try {
       const llm = this.createModel(apiUrl, apiKey, model);

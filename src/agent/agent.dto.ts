@@ -1,17 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 export class AgentChatRequestDto {
-  @ApiProperty({ description: 'OpenAI API 地址', example: 'https://turingai.plus/v1' })
-  apiUrl: string;
-
-  @ApiProperty({ description: 'OpenAI API 密钥', example: 'sk-xxx' })
-  apiKey: string;
-
   @ApiProperty({ description: '用户消息', example: '帮我拆解一下开发一个用户登录注册功能的任务' })
   message: string;
-
-  @ApiProperty({ description: '模型名称', example: 'claude-sonnet-4-5-20250929', required: false })
-  model?: string;
 }
 
 // 流式输出事件类型

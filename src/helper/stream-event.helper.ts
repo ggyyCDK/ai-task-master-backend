@@ -80,16 +80,10 @@ export class StreamEventHandler {
           : JSON.stringify(chunk.content);
 
         if (content) {
-          // 记录首词时间并发送 TTFT 事件
+          // 记录首词时间
           if (!this.hasFirstToken) {
             this.firstTokenTime = Date.now();
             this.hasFirstToken = true;
-            const ttft = this.firstTokenTime - this.startTime;
-            this.sendEvent({
-              eventType: 'ttft',
-              content: JSON.stringify({ ttft_ms: ttft }),
-            });
-            console.log(`[TTFT] Time to first token: ${ttft}ms`);
           }
 
           this.sendEvent({
