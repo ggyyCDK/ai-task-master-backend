@@ -22,9 +22,27 @@ export class GenerateTaskDto {
   message: string;
 }
 
+/**
+ * Schoober AI SDK Agent 请求 DTO
+ */
+export class SchooberAgentDto {
+  @ApiProperty({
+    description: '用户输入消息',
+    example: '帮我分析一下这段代码的性能问题',
+  })
+  message: string;
+
+  @ApiProperty({
+    description: 'Agent 名称（可选）',
+    example: 'code-analyzer',
+    required: false,
+  })
+  agentName?: string;
+}
+
 // 流式输出事件类型
 export interface StreamEvent {
-  eventType: 'message' | 'usage' | 'complete' | 'error' | 'tool_call' | 'tool_result';
+  eventType: 'message' | 'usage' | 'complete' | 'error' | 'tool_call' | 'tool_result' | 'task_state';
   content: string;
 }
 

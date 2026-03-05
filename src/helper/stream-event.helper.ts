@@ -47,20 +47,22 @@ export class StreamEventHandler {
   }
 
   /**
-   * 设置流式响应头
+   * 设置 SSE 流式响应头
    */
   setupStreamHeaders(): void {
-    this.response.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    this.response.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
     this.response.setHeader('Cache-Control', 'no-cache');
     this.response.setHeader('Connection', 'keep-alive');
-    this.response.setHeader('Transfer-Encoding', 'chunked');
+    this.response.setHeader('X-Accel-Buffering', 'no');
   }
 
   /**
-   * 发送流式事件
+   * 发送 SSE 格式的流式事件
+   * 格式: event: {eventType}\ndata: {content}\n\n
    */
   sendEvent(event: StreamEvent): void {
-    this.response.write(JSON.stringify(event) + '\n\n');
+    const sseEvent = `data: ${JSON.stringify(event)}\n\n`;
+    this.response.write(sseEvent);
   }
 
   /**
@@ -175,7 +177,7 @@ export class StreamEventHandler {
       eventType: 'complete',
       content: '[DONE]',
     });
-    this.response.end('OK');
+    this.response.end();
   }
 
   /**
