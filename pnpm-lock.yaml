@@ -42,8 +42,8 @@ importers:
         specifier: ^7.8.1
         version: 7.8.2
       schoober-ai-sdk:
-        specifier: ^0.0.3
-        version: 0.0.3
+        specifier: ^0.0.6
+        version: 0.0.6
       zod:
         specifier: ^4.3.6
         version: 4.3.6
@@ -2825,8 +2825,8 @@ packages:
     resolution: {integrity: sha512-eflK8wEtyOE6+hsaRVPxvUKYCpRgzLqDTb8krvAsRIwOGlHoSgYLgBXoubGgLd2fT41/OUYdb48v4k4WWHQurA==}
     engines: {node: '>= 10.13.0'}
 
-  schoober-ai-sdk@0.0.3:
-    resolution: {integrity: sha512-P5hOWWDm4S4WeQT7SvgKfjyyD1T4IycnE7EQ1XxxTW9m3Ac//svQlZrseCRxPRzozh+TDM2aA1W+L2NsUjyv5w==}
+  schoober-ai-sdk@0.0.6:
+    resolution: {integrity: sha512-6t7dGYdAlptgg8Q6OKbopFlQgM0eiYK3sH2dLS/nab6bkimluHR3zp5XesYaKHDF12GHtBfy1+6Yh43O9DlOEA==}
     engines: {node: '>=18.0.0'}
 
   semver@6.3.1:
@@ -6330,7 +6330,7 @@ snapshots:
       ajv-formats: 2.1.1(ajv@8.18.0)
       ajv-keywords: 5.1.0(ajv@8.18.0)
 
-  schoober-ai-sdk@0.0.3:
+  schoober-ai-sdk@0.0.6:
     dependencies:
       '@ai-sdk/openai': 2.0.97(zod@4.2.1)
       '@ai-sdk/openai-compatible': 1.0.34(zod@4.2.1)

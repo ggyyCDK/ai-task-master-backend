@@ -281,6 +281,7 @@ export class SchooberAgentService {
                         });
                     },
                     onTaskStateUpdate: async (taskState) => {
+
                         streamHandler.sendEvent({
                             eventType: 'task_state',
                             content: JSON.stringify(taskState),
@@ -292,8 +293,7 @@ export class SchooberAgentService {
             // 启动任务并等待完成
             await task.start();
 
-            // 发送使用统计和完成事件
-            streamHandler.sendUsageEvent();
+            // 发送完成事件
             streamHandler.sendCompleteEvent();
         } catch (error) {
             streamHandler.sendErrorEvent(
